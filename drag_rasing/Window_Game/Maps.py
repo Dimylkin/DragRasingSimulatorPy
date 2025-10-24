@@ -4,7 +4,6 @@ import datetime
 from time import sleep
 
 
-
 class Background(pygame.sprite.Sprite):
     def __init__(self, image, SCREEN_WIDTH, SCREEN_HEIGHT):
         super().__init__()

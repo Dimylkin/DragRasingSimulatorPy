@@ -1,21 +1,25 @@
 import datetime
-from time import sleep
 import pygame
 import sys
-import Car
-from Window_Game import Maps
+import os
+from drag_rasing import Car
+from drag_rasing.Window_Game import Maps
 
 
 pygame.init()
 
 FONT = pygame.font.Font(None, 36)
-SCREEN_WIDTH, SCREEN_HEIGHT = 800, 6006
+SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Драг рейсинг")
 
-road = Maps.LongRoad("Images/Roads/road.jpg", SCREEN_WIDTH, SCREEN_HEIGHT)
-car = Car.Car("lamborghini_murcielago")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+IMAGE_PATH = os.path.join(BASE_DIR, "drag_rasing", "Images", "Roads", "road.jpg")
+CAR_PATH = os.path.join(BASE_DIR, "drag_rasing", "Car_TTX", "ttx_lamborghini_murcielago.json")
+
+road = Maps.LongRoad(IMAGE_PATH, SCREEN_WIDTH, SCREEN_HEIGHT)
+car = Car.Car(CAR_PATH)
 cars = pygame.sprite.Group()
 cars.add(car)
 car.start_engine()

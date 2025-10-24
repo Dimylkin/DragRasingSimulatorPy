@@ -5,9 +5,9 @@ import time
 import json
 
 class Car(pygame.sprite.Sprite):
-    def __init__(self, name):
+    def __init__(self, path):
         super().__init__()
-        self.name = name
+        self.path = path
         self.current_gear = 0
         self.load_ttx()
         self.load_image()
@@ -16,7 +16,7 @@ class Car(pygame.sprite.Sprite):
 
     def load_ttx(self):
         try:
-            with open(f'Car_TTX/ttx_{self.name}.json', 'r', encoding='utf-8') as car_ttx:
+            with open(self.path, 'r', encoding='utf-8') as car_ttx:
                 data = json.load(car_ttx)
                 self.image = data['image']
                 self.scale = data['scale']
@@ -81,7 +81,8 @@ class Bot(Car, pygame.sprite.Sprite):
         elif level == "Middle":
             self.name = "audi_rs6"
         else:
-            self.name = lamborghini_murcielago
+            pass
+            #self.name = lamborghini_murcielago
         Car(self.name)
 
 
