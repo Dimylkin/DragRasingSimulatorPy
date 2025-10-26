@@ -1,23 +1,25 @@
 import pygame
 import math
 import datetime
-import time
 import json
 
-class Car(pygame.sprite.Sprite):
-    def __init__(self, path):
-        super().__init__()
-        self.path = path
-        self.current_gear = 0
-        self.load_ttx()
-        self.load_image()
-        self.speed = 0
-        self.engine = Engine(self)
+from src.utils.utils_paths import get_asset_path, get_resource_path
 
-    def load_ttx(self):
+class Car(pygame.sprite.Sprite):
+    def __init__(self, name):
+        super().__init__()
+        self._name = name
+        self.current_gear = 0
+        self._load_assets()
+        self.engine = Engine(self.dict_gear_ratio_pair, self.time_max_throttle, self.wheel_circle,
+                             self.min_revolutions, self.max_revolutions)
+        self._load_image()
+        self.speed = 0
+
+    def _load_assets(self):
         try:
-            with open(self.path, 'r', encoding='utf-8') as car_ttx:
-                data = json.load(car_ttx)
+            with open(get_asset_path('cars',f'car_{self._name}.json'), 'r', encoding='utf-8') as asset_car:
+                data = json.load(asset_car)
                 self.image = data['image']
                 self.scale = data['scale']
                 self.coordinate_x = data['coordinate_x']
@@ -30,9 +32,9 @@ class Car(pygame.sprite.Sprite):
         except:
             raise ValueError("Характеристики машины не были загружены. Проверьте файл конфигурации автомобиля.")
 
-    def load_image(self):
+    def _load_image(self):
         try:
-            self.original_image = pygame.image.load(self.image).convert_alpha()
+            self.original_image = pygame.image.load(get_resource_path('images', 'cars', self.image)).convert_alpha()
             if self.scale != 1.0:
                 new_size = (int(self.original_image.get_width() * self.scale),
                             int(self.original_image.get_height() * self.scale))
@@ -47,7 +49,7 @@ class Car(pygame.sprite.Sprite):
     def update(self, is_good_shift):
         self.engine.update_throttle()
         self.speed = self.engine.get_current_speed() * 0.2778 * 2
-        if is_good_shift != True:
+        if not is_good_shift:
             self.speed *= 0.5
             self.engine.throttle *= 0.5
             self.engine.acceleration_progress *= 0.5
@@ -72,37 +74,23 @@ class Car(pygame.sprite.Sprite):
             'throttle': self.engine.throttle
         }
 
-class Bot(Car, pygame.sprite.Sprite):
-    def __init__(self, level):
-        super().__init__()
-        self.level = level
-        if level == "Low":
-            self.name = "vaz_2101"
-        elif level == "Middle":
-            self.name = "audi_rs6"
-        else:
-            pass
-            #self.name = lamborghini_murcielago
-        Car(self.name)
-
 
 class Engine:
-    def __init__(self, car):
+    def __init__(self, dict_gear_ratio_pair, time_max_throttle, wheel_circle, min_revolutions, max_revolutions):
         self.current_broadcast = 0
-        self.car = car
-        self.dict_gear_ratio_pair = car.dict_gear_ratio_pair
-        self.time_max_throttle = car.time_max_throttle
-        self.wheel_circle = car.wheel_circle
-        self.min_revolutions = car.min_revolutions
-        self.max_revolutions = car.max_revolutions
-        self.revolutions = self.min_revolutions
+        self._dict_gear_ratio_pair = dict_gear_ratio_pair
+        self._time_max_throttle = time_max_throttle
+        self._wheel_circle = wheel_circle
+        self._min_revolutions = min_revolutions
+        self._max_revolutions = max_revolutions
+        self.revolutions = self._min_revolutions
         self.throttle = 0.0
         self.start_time = None
         self.acceleration_progress = 0.0
-        self.count_gear = len(self.dict_gear_ratio_pair) - 2
+        self.count_gear = len(self._dict_gear_ratio_pair) - 2
 
-        self.gear_ratio_main_pair = self.dict_gear_ratio_pair["main"]
-        self.gear_ratio_current_pair = self.dict_gear_ratio_pair[str(self.current_broadcast)]
+        self.gear_ratio_main_pair = self._dict_gear_ratio_pair["main"]
+        self.gear_ratio_current_pair = self._dict_gear_ratio_pair[str(self.current_broadcast)]
 
     def start_acceleration(self):
         self.start_time = datetime.datetime.now()
@@ -111,7 +99,7 @@ class Engine:
         if self.start_time is not None:
             current_time = datetime.datetime.now()
             elapsed = (current_time - self.start_time).total_seconds()
-            total_time = self.time_max_throttle[str(self.current_broadcast)]
+            total_time = self._time_max_throttle[str(self.current_broadcast)]
 
             if total_time == 0:
                 self.throttle = 0
@@ -119,36 +107,36 @@ class Engine:
                 new_progress = min(self.acceleration_progress + (elapsed / total_time), 1.0)
                 self.throttle = new_progress
 
-            self.revolutions = self.min_revolutions + (self.throttle * (self.max_revolutions - self.min_revolutions))
+            self.revolutions = self._min_revolutions + (self.throttle * (self._max_revolutions - self._min_revolutions))
 
     def shift_gear(self, new_gear):
         self.acceleration_progress = self.throttle * 0.6
         self.current_broadcast = new_gear
-        self.gear_ratio_current_pair = self.dict_gear_ratio_pair[str(new_gear)]
+        self.gear_ratio_current_pair = self._dict_gear_ratio_pair[str(new_gear)]
         self.start_time = datetime.datetime.now()
 
     def get_current_speed(self):
         if self.gear_ratio_current_pair == 0 or self.current_broadcast == 0:
             return 0
         else:
-            return math.ceil((self.revolutions * self.wheel_circle * 60)
+            return math.ceil((self.revolutions * self._wheel_circle * 60)
                              / (self.gear_ratio_main_pair * self.gear_ratio_current_pair * 1000))
 
     def calculate_rpm_after_shift(self, new_gear):
         if self.current_broadcast == 0 or new_gear == 0:
-            return min_revolutions
+            return self._min_revolutions
 
-        current_ratio = self.dict_gear_ratio_pair[str(self.current_broadcast)]
-        new_ratio = self.dict_gear_ratio_pair[str(new_gear)]
+        current_ratio = self._dict_gear_ratio_pair[str(self.current_broadcast)]
+        new_ratio = self._dict_gear_ratio_pair[str(new_gear)]
 
         rpm_after = self.revolutions * (new_ratio / current_ratio)
-        rpm_after = max(self.min_revolutions, rpm_after)
+        rpm_after = max(self._min_revolutions, rpm_after)
 
         return rpm_after
 
     def is_good_shift(self, new_gear):
         rpm_after = self.calculate_rpm_after_shift(new_gear)
-        if rpm_after < self.min_revolutions + self.min_revolutions or rpm_after > self.max_revolutions - self.min_revolutions:
+        if rpm_after < self._min_revolutions + self._min_revolutions or rpm_after > self._max_revolutions - self._min_revolutions:
             return False
         else:
             return True

@@ -1,6 +1,44 @@
 import pygame
 
 
+class ScreenManager:
+    """Менеджер экранов для управления переключением между разными состояниями игры"""
+
+    def __init__(self):
+        self.screens = {}
+        self.current_screen = None
+        self.screen_size = (800, 600)
+
+    def add_screen(self, name, screen):
+        """Добавляет экран в менеджер"""
+        self.screens[name] = screen
+        if self.current_screen is None:
+            self.current_screen = name
+
+    def switch_screen(self, name):
+        """Переключает на указанный экран"""
+        if name in self.screens:
+            self.current_screen = name
+            return True
+        return False
+
+    def get_current_screen(self):
+        """Возвращает текущий активный экран"""
+        return self.screens.get(self.current_screen)
+
+    def update(self):
+        """Обновляет текущий экран"""
+        current = self.get_current_screen()
+        if current:
+            current.update()
+
+    def draw(self, surface):
+        """Отрисовывает текущий экран"""
+        current = self.get_current_screen()
+        if current:
+            current.draw(surface)
+
+
 class Button:
     def __init__(self, screen, coordinate_x, coordinate_y, surface_width, surface_height, surface_width_stroke
                  , button_radius, button_on_color, button_off_color, button_text = None, button_image = None, action = None):
@@ -35,6 +73,7 @@ class Button:
                 self.clicked = True
                 if self.action:
                     print(f"Выполняется действие: {self.action}")
+                    self.action()
 
         else:
             pygame.draw.rect(button_surface, self.button_off_color, rect, border_radius = self.button_radius)
@@ -74,6 +113,7 @@ class Button:
                 self.clicked = True
                 if self.action:
                     print(f"Выполняется действие: {self.action}")
+                    self.action()
 
         else:
             pygame.draw.rect(button_surface, self.button_off_color, rect, border_radius=self.button_radius)

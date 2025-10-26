@@ -5,21 +5,22 @@ from time import sleep
 
 
 class Background(pygame.sprite.Sprite):
-    def __init__(self, image, SCREEN_WIDTH, SCREEN_HEIGHT):
+    def __init__(self, screen, image):
         super().__init__()
+        self.screen = screen
         self.image_path = image
-        self.SCREEN_WIDTH = SCREEN_WIDTH
-        self.SCREEN_HEIGHT = SCREEN_HEIGHT
+        self.screen_width = self.screen.get_width()
+        self.screen_height = self.screen.get_height()
         self.load_image()
-
 
     def load_image(self):
         self.original_image = pygame.image.load(self.image_path).convert()
         self.image = pygame.transform.scale(self.original_image,
-                                            (self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+                                            (self.screen_width, self.screen_height))
         self.rect = self.image.get_rect()
 
-    def draw_hud(screen, car, x, y, width, height):
+    @staticmethod
+    def draw_hud(screen, car, x, y, width, height):  # ← Сделано статическим методом
         info = car.get_engine_info()
         FONT = pygame.font.Font(None, 30)
         gear_text = FONT.render(f"Текущая передача: {info['gear']}", True, (255, 255, 255))
@@ -56,25 +57,25 @@ class Background(pygame.sprite.Sprite):
         screen.blit(gear_text, (10, 60))
         screen.blit(speed_text, (10, 90))
 
-    def draw_not_good_shift(screen, width, height):
+    @staticmethod
+    def draw_not_good_shift(screen, width, height):  # ← Сделано статическим методом
         FONT = pygame.font.Font(None, 30)
         text_not_good_shift = FONT.render("!Плохое переключение передачи! Потеря мощности!", True, (255, 0, 0))
         screen.blit(text_not_good_shift, ((width / 4) + 100, (height / 4) + 200))
         pygame.display.flip()
 
-    def draw_finish(screen, width, height, time_start_race, speeds):
+    @staticmethod
+    def draw_finish(screen, width, height, time_start_race, speeds):  # ← Сделано статическим методом
         time_end_race = datetime.datetime.now()
         spend_time = (time_end_race - time_start_race).total_seconds()
         average_speed = sum(speeds) / len(speeds)
         FONT = pygame.font.Font(None, 30)
-        pygame.draw.rect(screen, (224,224,224), (width / 4, height / 4, 400, 300), border_radius= 25)
+        pygame.draw.rect(screen, (224,224,224), (width / 4, height / 4, 400, 300), border_radius=25)
         pygame.draw.rect(screen, (0, 0, 0), (width / 4, height / 4, 400, 300), border_radius=25, width=2)
 
         text_finish = FONT.render("!ГОНКА ЗАВЕРШЕНА!", True, (0, 255, 0))
-        text_spend_time = FONT.render(f"Время заезда {round(spend_time, 2)} секунд",
-                                      True, (0, 0, 0))
-        text_average_speed = FONT.render(f"Средняя скорость {round(average_speed, 2)} км/ч",
-                                      True, (0, 0, 0))
+        text_spend_time = FONT.render(f"Время заезда {round(spend_time, 2)} секунд", True, (0, 0, 0))
+        text_average_speed = FONT.render(f"Средняя скорость {round(average_speed, 2)} км/ч", True, (0, 0, 0))
 
         screen.blit(text_finish, ((width / 4) + 85, (height / 4) + 20))
         screen.blit(text_spend_time, ((width / 4) + 35, (height / 4) + 70))
@@ -85,14 +86,15 @@ class Background(pygame.sprite.Sprite):
 
 
 class LongRoad:
-    def __init__(self, image, SCREEN_WIDTH, SCREEN_HEIGHT):
+    def __init__(self, screen, image):
+        self.screen = screen
         self.segments = pygame.sprite.Group()
-        self.segment_width = SCREEN_WIDTH
+        self.segment_width = self.screen.get_width()
         self.total_segments = 5
 
         for i in range(self.total_segments):
-            segment = Background(image, SCREEN_WIDTH, SCREEN_HEIGHT)
-            segment.rect.x = i * SCREEN_WIDTH
+            segment = Background(self.screen, image)
+            segment.rect.x = i * self.screen.get_width()
             self.segments.add(segment)
 
         self.distance_traveled = 0

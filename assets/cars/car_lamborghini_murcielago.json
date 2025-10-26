@@ -1,5 +1,5 @@
 {
-  "image": "Images/Cars/lamborghini_murcielago.png",
+  "image": "../resources/cars/car_lamborghini_murcielago.png",
   "scale": 0.30,
   "coordinate_x": -50,
   "coordinate_y": 255,

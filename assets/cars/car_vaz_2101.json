@@ -1,5 +1,5 @@
 {
-  "image": "Images/Cars/vaz_2101.png",
+  "image": "../resources/cars/car_vaz_2101.png",
   "scale": 0.5,
   "coordinate_x": -50,
   "coordinate_y": 305,
