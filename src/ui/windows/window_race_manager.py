@@ -2,13 +2,13 @@ import datetime
 import pygame
 import sys
 
-from src.utils.utils_paths import get_asset_path, get_resource_path
+from src.utils.utils_paths import Utils
 from src.game.game_car import Car
 from src.ui.windows.window_track_manager import Background, LongRoad
 
 
 class RaceManager:
-    def __init__(self):
+    def __init__(self, choice_car, choice_map):
         pygame.init()
 
         self._screen_width, self._screen_height = 800, 600
@@ -16,10 +16,13 @@ class RaceManager:
 
         self._screen = pygame.display.set_mode((self._screen_width, self._screen_height))
         pygame.display.set_caption("Драг рейсинг")
+        self.choice_car = choice_car
+        self.choice_map = choice_map
         self._load_resources()
         self._create_instances()
 
         self.speeds = [0]
+        self.count_lose_shift = 0
         self.warning_frames = 0
         self.after_shift_frames = 0
         self._is_running = True
@@ -30,13 +33,12 @@ class RaceManager:
         self.time_start_race = None
 
     def _load_resources(self):
-        self._image_track = get_resource_path('images', 'tracks', 'track_rainy_swedish_road.jpg')
-        # Для машины загружаем JSON файл с характеристиками
-        self._car_data_path = get_asset_path('cars', 'car_audi_rs6.json')
+        self._image_track = Utils().get_resource_path('images', 'tracks', f'track_{self.choice_map}.png')
+        self._car_data_path = Utils().get_asset_path('cars', f'car_{self.choice_car}.json')
 
     def _create_instances(self):
         self._road = LongRoad(self._screen, self._image_track)
-        self._car = Car("audi_rs6")  # Передаем имя машины для загрузки
+        self._car = Car(self.choice_car)
         self._cars = pygame.sprite.Group()
         self._cars.add(self._car)
 
@@ -56,6 +58,7 @@ class RaceManager:
                 self.after_shift_frames = 60
 
                 if not self._is_good_shift:
+                    self.count_lose_shift += 1
                     self.warning_frames = 60
                     self.after_shift_frames = 120
 
@@ -78,16 +81,18 @@ class RaceManager:
         self._road.draw(self._screen)
         self._cars.draw(self._screen)
 
-        # Используем статические методы Background
         Background.draw_hud(self._screen, self._car, 10, 30, 200, 20)
 
         if self.warning_frames > 0:
-            Background.draw_not_good_shift(self._screen, self._screen_width, self._screen_height)  # ← Исправлены параметры
+            Background.draw_not_good_shift(self._screen, self._screen_width, self._screen_height)
 
         if self._is_finished:
             Background.draw_finish(self._screen, self._screen_width, self._screen_height,
-                                   self.time_start_race, self.speeds)
-            self._is_running = False  # ← Исправлено: было self.is_running
+                                   self.time_start_race, self.speeds, self.count_lose_shift)
+            from src.ui.windows.window_start import Start
+            start = Start()
+            self._is_running = False
+            start.run()
 
     def start_race(self):
         self._car.start_engine()
