@@ -1,0 +1,17 @@
+{
+  "simple_color": [
+    255,
+    245,
+    225
+  ],
+  "success_color": [
+    152,
+    251,
+    152
+  ],
+  "unsuccess_color": [
+    123,
+    0,
+    28
+  ]
+}
