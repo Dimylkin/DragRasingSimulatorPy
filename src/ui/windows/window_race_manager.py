@@ -2,43 +2,42 @@ import datetime
 import pygame
 import sys
 
-from src.utils.utils_paths import Utils
-from src.game.game_car import Car
-from src.ui.windows.window_track_manager import Background, LongRoad
+from src.ui.windows.window_track_manager import Background, WindowBackgroundSegments
+from src.ui.tools.tool_window_designer import WindowPattern
 
 
 class RaceManager:
-    def __init__(self, choice_car, choice_map):
+    def __init__(self, car, track, user):
         pygame.init()
-
-        self._screen_width, self._screen_height = 800, 600
-        self._FONT = pygame.font.Font(None, 36)
+        window = WindowPattern()
+        self.user = user
+        self._screen_width, self._screen_height = window.get_screen_size()
 
         self._screen = pygame.display.set_mode((self._screen_width, self._screen_height))
-        pygame.display.set_caption("Драг рейсинг")
-        self.choice_car = choice_car
-        self.choice_map = choice_map
-        self._load_resources()
+        pygame.display.set_caption(window.get_screen_caption())
+        self.car = car
+        self.track = track
+        self.track.screen = self._screen
         self._create_instances()
 
         self.speeds = [0]
         self.count_lose_shift = 0
-        self.warning_frames = 0
-        self.after_shift_frames = 0
+
+        self.frames_warning = 0
+        self.frames_after_shift = 0
+
+        
         self._is_running = True
         self._is_good_shift = True
+        self._is_boost = False
         self._is_finished = False
+        self.is_time_start_race = None
 
         self._clock = pygame.time.Clock()
-        self.time_start_race = None
-
-    def _load_resources(self):
-        self._image_track = Utils().get_resource_path('images', 'tracks', f'track_{self.choice_map}.png')
-        self._car_data_path = Utils().get_asset_path('cars', f'car_{self.choice_car}.json')
 
     def _create_instances(self):
-        self._road = LongRoad(self._screen, self._image_track)
-        self._car = Car(self.choice_car)
+        self._road = self.track
+        self._car = self.car
         self._cars = pygame.sprite.Group()
         self._cars.add(self._car)
 
@@ -50,30 +49,32 @@ class RaceManager:
                 self._handle_keydown(event)
 
     def _handle_keydown(self, event):
-        if event.key == pygame.K_UP and self.after_shift_frames <= 0 and not self._is_finished:
+        if event.key == pygame.K_UP and self.frames_after_shift <= 0 and not self._is_finished:
             current_gear = self._car.current_gear
             if current_gear < self._car.engine.count_gear:
                 new_gear = current_gear + 1
                 self._is_good_shift = self._car.shift_gear(new_gear)
-                self.after_shift_frames = 60
+                self._is_boost = self._car.engine.is_boost()
+                self.frames_after_shift = self._car.frames_after_shift
 
                 if not self._is_good_shift:
                     self.count_lose_shift += 1
-                    self.warning_frames = 60
-                    self.after_shift_frames = 120
+                    self.frames_warning = 60
+                    self.frames_after_shift = self._car.frames_after_shift
 
     def _update_game_state(self):
         if self._is_finished:
             return
 
         self._car.update(self._is_good_shift)
+        self.frames_boost = self._car.boost_frames_remaining
         self.speeds.append(self._car.engine.get_current_speed())
 
-        if self.warning_frames > 0:
-            self.warning_frames -= 1
+        if self.frames_warning > 0:
+            self.frames_warning -= 1
 
-        if self.after_shift_frames > 0:
-            self.after_shift_frames -= 1
+        if self.frames_after_shift > 0:
+            self.frames_after_shift -= 1
 
         self._is_finished = self._road.update(self._car.speed)
 
@@ -83,20 +84,23 @@ class RaceManager:
 
         Background.draw_hud(self._screen, self._car, 10, 30, 200, 20)
 
-        if self.warning_frames > 0:
+        if self.frames_warning > 0:
             Background.draw_not_good_shift(self._screen, self._screen_width, self._screen_height)
+
+        if self.frames_boost > 0:
+            Background.draw_boost(self._screen, self._screen_width, self._screen_height)
 
         if self._is_finished:
             Background.draw_finish(self._screen, self._screen_width, self._screen_height,
-                                   self.time_start_race, self.speeds, self.count_lose_shift)
-            from src.ui.windows.window_start import Start
-            start = Start()
+                                   self.is_time_start_race, self.speeds, self.count_lose_shift, self.user)
+            from src.ui.windows.window_start import WindowStart
+            start = WindowStart(self.user)
             self._is_running = False
             start.run()
 
     def start_race(self):
         self._car.start_engine()
-        self.time_start_race = datetime.datetime.now()
+        self.is_time_start_race = datetime.datetime.now()
 
     def run(self):
         self.start_race()
@@ -111,6 +115,7 @@ class RaceManager:
 
         self.quit()
 
-    def quit(self):
+    @staticmethod
+    def quit():
         pygame.quit()
         sys.exit()
