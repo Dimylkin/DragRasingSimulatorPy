@@ -1,0 +1,16 @@
+{
+  "image": "car_niva.png",
+  "name": "РОЗОВАЯ НИВА (by Настя и Ринат)",
+  "class": "super_sport",
+  "score_to_unlocking": 20000,
+  "scale": 0.5,
+  "coordinate_x": -50,
+  "coordinate_y": 305,
+  "dict_gear_ratio_pair": {"main": 2.53, "0": 0, "1": 3.09, "2": 2.1, "3": 1.56, "4": 1.24, "5": 1.05, "6": 0.93},
+  "time_max_throttle": {"0": 0, "1": 2, "2": 4, "3": 5, "4": 6, "5": 8, "6": 10},
+  "frames_after_shift": 60,
+  "wheel_circle": 2.15,
+  "min_revolutions": 900,
+  "max_revolutions": 8000,
+  "horse_power": 650
+}
