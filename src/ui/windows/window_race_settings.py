@@ -131,15 +131,11 @@ class RaceSettings:
         self.button_car_right_choice = WindowObject(self.screen, 350, 320, 30, 30,
                                                     10, ">", None, self.next_car)
 
-        self.button_mode_bot = WindowObject(self.screen, 200, 480, 200, 100,
-                                            15, "Игра с ботом", None, self.switch_to_race)
-
-        self.button_mode_alone = WindowObject(self.screen, 450, 480, 200, 100,
-                                              15, "Одиночная игра", None, self.switch_to_race)
+        self.button_mode_alone = WindowObject(self.screen, 300, 450, 225, 125,
+                                              15, "! Погнали !", None, self.switch_to_race)
 
         self.text_choice_track = self.font_middle.render("Выберите карту", True, self.text_color_simple)
         self.text_choice_car = self.font_middle.render("Выберите машину", True, self.text_color_simple)
-        self.text_choice_mode = self.font_middle.render("Выберите режим игры", True, self.text_color_simple)
 
         self._update_current_texts()
 
@@ -340,8 +336,6 @@ class RaceSettings:
         self.button_car.obj_image()
         self.button_car_right_choice.obj_button_with_text()
 
-        self.screen.blit(self.text_choice_mode, (280, 420))
-        self.button_mode_bot.obj_button_with_text()
         self.button_mode_alone.obj_button_with_text()
 
         pygame.draw.rect(self.screen, (255, 255, 255), pygame.Rect(420, 10, 2, 380))

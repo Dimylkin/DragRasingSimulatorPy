@@ -73,7 +73,12 @@ class User:
         Вычисляет и обновляет счет пользователя на основе результатов игры.
 
         Формула расчета очков:
-        score = round(100 + 20 * (10 / time_spend) + 100 * speed_average - 5 * lose_shift_count)
+        score = base_score + time_bonus + speed_bonus - penalty
+        где:
+        - base_score = 100 (базовые очки за завершение)
+        - time_bonus = 150 * (20 / time_spend) (бонус за скорость прохождения)
+        - speed_bonus = 2.5 * speed_average (бонус за среднюю скорость)
+        - penalty = 25 * lose_shift_count (штраф за плохие переключения)
 
         Вычисленный счет добавляется к текущему счету пользователя,
         и обновленное значение сохраняется в JSON-файл.
@@ -97,7 +102,15 @@ class User:
         if speed_average <= 0:
             raise ValueError(f"speed_average должна быть больше 0, получено: {speed_average}")
 
-        score = round(100 + 20 * (10 / time_spend) + 100 * speed_average - 5 * lose_shift_count)
+        base_score = 100
+        time_bonus = 150 * (20 / time_spend)
+        speed_bonus = 2.5 * speed_average
+        penalty = 25 * lose_shift_count
+
+        score = round(base_score + time_bonus + speed_bonus - penalty)
+
+        score = max(25, min(score, 750))
+
         self.score += score
 
         file_path = Utils().get_asset_path('users', f'user_{self.name}.json')
@@ -122,3 +135,4 @@ class User:
             raise
 
         return score
+
