@@ -118,11 +118,11 @@ class Utils:
             FileNotFoundError: Если директория треков не найдена.
         """
         try:
-            tracks_path = self.get_resource_path('images', 'tracks')
+            tracks_path = self.get_asset_path('tracks')
             list_tracks = []
             for file in os.listdir(tracks_path):
-                if file.startswith('track_') and file.endswith('.png'):
-                    track = file[6:-4]
+                if file.startswith('track_') and file.endswith('.json'):
+                    track = file[6:-5]
                     list_tracks.append(track)
             return list_tracks
         except FileNotFoundError as e:
@@ -143,11 +143,11 @@ class Utils:
             FileNotFoundError: Если директория автомобилей не найдена.
         """
         try:
-            cars_path = self.get_resource_path('images', 'cars')
+            cars_path = self.get_asset_path('cars')
             list_cars = []
             for file in os.listdir(cars_path):
-                if file.startswith('car_') and file.endswith('.png'):
-                    car = file[4:-4]
+                if file.startswith('car_') and file.endswith('.json'):
+                    car = file[4:-5]
                     list_cars.append(car)
             return list_cars
         except FileNotFoundError as e:

@@ -71,15 +71,18 @@ class WindowStatistic:
             self.user_image = pygame.Surface((200, 200))
             self.user_image.fill((128, 128, 128))
 
-        self.user_avatar = WindowObject(self.screen, 300, 80, 200, 200,
+        self.text_title = self.font_large.render("Статистика игрока", True, self.text_simple_color)
+
+        self.user_avatar = WindowObject(self.screen, 50, 80, 200, 200,
                                         100, None, self.user_image)
 
         self.text_user_name = self.font_large.render(f"Имя: {self.user.nickname}", True, self.text_simple_color)
 
-        self.text_user_score = self.font_large.render(f"Текущее количество очков: {self.user.score}", True,
+        self.text_user_score = self.font_large.render(f"Очки: {self.user.score}", True,
                                                       self.text_simple_color)
 
-        self.text_title = self.font_large.render("Статистика игрока", True, self.text_simple_color)
+        self.text_user_statistics = self.font_large.render("Статистика лучших рейсов:", True,
+                                                      self.text_simple_color)
 
         self.button_back = WindowObject(self.screen, 30, 20, 75, 30,
                                         5, "Назад", None, self.window_back)
@@ -96,12 +99,6 @@ class WindowStatistic:
         start.run()
 
     def draw(self):
-        """
-        Отрисовывает все элементы окна статистики.
-
-        Рисует фон, заголовок, аватар пользователя, его имя,
-        счет и кнопку возврата.
-        """
         self.screen.fill(self.screen_fill)
 
         self.button_back.obj_button_with_text()
@@ -110,11 +107,35 @@ class WindowStatistic:
         rect_title = self.text_title.get_rect(center=(400, 40))
         self.screen.blit(self.text_title, rect_title)
 
-        rect_name = self.text_user_name.get_rect(center=(400, 320))
+        rect_name = self.text_user_name.get_rect(center=(500, 125))
         self.screen.blit(self.text_user_name, rect_name)
 
-        rect_score = self.text_user_score.get_rect(center=(400, 370))
+        rect_score = self.text_user_score.get_rect(center=(500, 200))
         self.screen.blit(self.text_user_score, rect_score)
+
+        rect_statistics = self.text_user_statistics.get_rect(center=(400, 310))
+        self.screen.blit(self.text_user_statistics, rect_statistics)
+
+        font_small = WindowPattern().get_font("small")
+        color = self.text_simple_color
+
+        x_pos = 25 + 750 // 2
+        y_start = 340 + 30
+        line_height = 40
+
+        if len(self.user.data) != 0:
+            for i, (car_name, stats) in enumerate(self.user.data.items()):
+                best_time = stats.get('best_time')
+
+                time_str = f"{best_time:.2f} сек" if best_time is not None else "-"
+
+                text_line = f"Машина: {car_name}: Время: {time_str}"
+                text_surface = font_small.render(text_line, True, color)
+                rect_text = text_surface.get_rect(center=(x_pos, y_start + i * line_height))
+                self.screen.blit(text_surface, rect_text)
+        else:
+            text_surface = self.font_large.render("Здесь пока пусто!", True, color)
+            self.screen.blit(text_surface, (250, y_start + line_height))
 
     def _handle_events(self):
         """
@@ -135,6 +156,7 @@ class WindowStatistic:
         """
         while self.is_running:
             self._handle_events()
+            self.user._load_resources(self.user.name)
             self.draw()
 
             pygame.display.flip()

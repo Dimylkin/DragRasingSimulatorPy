@@ -122,6 +122,17 @@ class WindowBackgroundSegments:
         """
         self.segments.draw(screen)
 
+class Circle(pygame.sprite.Sprite):
+    def __init__(self, color, center):
+        super().__init__()
+        self.color = color
+        self.center = center
+
+    def traffic_circle(self, screen, radius=25):
+        pygame.draw.circle(screen, self.color, self.center, radius)
+
+    def set_color(self, new_color):
+        self.color = new_color
 
 class Background(pygame.sprite.Sprite):
     """
@@ -274,7 +285,127 @@ class Background(pygame.sprite.Sprite):
         screen.blit(text_boost, ((width / 4) - 20, (height / 4) + 80))
 
     @staticmethod
-    def draw_finish(screen, width, height, time_start_race, speeds, count_lose_shift, user):
+    def traffic(screen, state):
+        """
+        Отрисовывает светофор с состояниями: red, yellow, green.
+
+        Args:
+            screen (pygame.Surface): Поверхность экрана для отрисовки.
+            state (str): Состояние светофора - "red", "yellow_1", "yellow_2", "yellow_3", "green".
+        """
+
+        rect_x = screen.get_width() - 175
+        rect_y = 100
+        rect_width = 150
+        rect_height = 320
+        pygame.draw.rect(screen, (82,82,82), (rect_x, rect_y, rect_width, rect_height), border_radius=20)
+
+        radius = 15
+        offset_x1 = rect_x + 40
+        offset_x2 = rect_x + 110
+        pos_y = [rect_y + 50, rect_y + 100, rect_y + 150, rect_y + 200, rect_y + 250]
+
+        if state == "red":
+            yellow_color_1 = (0, 0, 0)
+            yellow_color_2 = (0, 0, 0)
+            yellow_color_3 = (0, 0, 0)
+            green_color = (0, 0, 0)
+            red_color = (255, 0, 0)
+        elif state == "yellow_1":
+            yellow_color_1 = (255, 255, 0)
+            yellow_color_2 = (0, 0, 0)
+            yellow_color_3 = (0, 0, 0)
+            green_color = (0, 0, 0)
+            red_color = (0, 0, 0)
+        elif state == "yellow_2":
+            yellow_color_1 = (255, 255, 0)
+            yellow_color_2 = (255, 255, 0)
+            yellow_color_3 = (0, 0, 0)
+            green_color = (0, 0, 0)
+            red_color = (0, 0, 0)
+        elif state == "yellow_3":
+            yellow_color_1 = (255, 255, 0)
+            yellow_color_2 = (255, 255, 0)
+            yellow_color_3 = (255, 255, 0)
+            green_color = (0, 0, 0)
+            red_color = (0, 0, 0)
+        elif state == "green":
+            yellow_color_1 = (0, 0, 0)
+            yellow_color_2 = (0, 0, 0)
+            yellow_color_3 = (0, 0, 0)
+            green_color = (0, 255, 0)
+            red_color = (0, 0, 0)
+        elif state == "red":
+            yellow_color_1 = (0, 0, 0)
+            yellow_color_2 = (0, 0, 0)
+            yellow_color_3 = (0, 0, 0)
+            green_color = (0, 0, 0)
+            red_color = (255, 0, 0)
+        else:
+            yellow_color_1 = (0, 0, 0)
+            yellow_color_2 = (0, 0, 0)
+            yellow_color_3 = (0, 0, 0)
+            green_color = (0, 0, 0)
+            red_color = (0, 0, 0)
+
+
+        circle_yellow_1_1 = Circle(yellow_color_1, (offset_x1, pos_y[0]))
+        circle_yellow_1_1.traffic_circle(screen, radius)
+        circle_yellow_1_2 = Circle(yellow_color_1, (offset_x2, pos_y[0]))
+        circle_yellow_1_2.traffic_circle(screen, radius)
+
+        circle_yellow_2_1 = Circle(yellow_color_2, (offset_x1, pos_y[1]))
+        circle_yellow_2_1.traffic_circle(screen, radius)
+        circle_yellow_2_2 = Circle(yellow_color_2, (offset_x2, pos_y[1]))
+        circle_yellow_2_2.traffic_circle(screen, radius)
+
+        circle_yellow_3_1 = Circle(yellow_color_3, (offset_x1, pos_y[2]))
+        circle_yellow_3_1.traffic_circle(screen, radius)
+        circle_yellow_3_2 = Circle(yellow_color_3, (offset_x2, pos_y[2]))
+        circle_yellow_3_2.traffic_circle(screen, radius)
+
+        circle_green_4_1 = Circle(green_color, (offset_x1, pos_y[3]))
+        circle_green_4_1.traffic_circle(screen, radius)
+        circle_green_4_2 = Circle(green_color, (offset_x2, pos_y[3]))
+        circle_green_4_2.traffic_circle(screen, radius)
+
+        circle_red_5_1 = Circle(red_color, (offset_x1, pos_y[4]))
+        circle_red_5_1.traffic_circle(screen, radius)
+        circle_red_5_2 = Circle(red_color, (offset_x2, pos_y[4]))
+        circle_red_5_2.traffic_circle(screen, radius)
+
+    @staticmethod
+    def draw_start(screen):
+        """
+        Отрисовывает на экране надпись "СТАРТ".
+
+        Args:
+            screen (pygame.Surface): Поверхность экрана для отрисовки.
+        """
+        font_large = WindowPattern().get_font("large")
+        text_color_success = WindowPattern().get_text_colors("success")
+
+        text = font_large.render("СТАРТ", True, text_color_success)
+        rect = text.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2))
+        screen.blit(text, rect)
+
+    @staticmethod
+    def draw_false_start(screen):
+        """
+        Отрисовывает на экране надпись "ФАЛЬШСТАРТ".
+
+        Args:
+            screen (pygame.Surface): Поверхность экрана для отрисовки.
+        """
+        font_large = WindowPattern().get_font("large")
+        text_color_error = WindowPattern().get_text_colors("unsuccess")
+
+        text = font_large.render("ФАЛЬШСТАРТ", True, text_color_error)
+        rect = text.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2))
+        screen.blit(text, rect)
+
+    @staticmethod
+    def draw_finish(screen, width, height, time_start_race, is_false_start, speeds, count_lose_shift, car, user):
         """
         Отрисовывает финишный экран с результатами гонки.
 
@@ -294,11 +425,13 @@ class Background(pygame.sprite.Sprite):
         time_spend = (time_end_race - time_start_race).total_seconds()
         speed_average = sum(speeds) / len(speeds) if speeds else 0
 
-        user_score = user.set_user_score(time_spend, speed_average, count_lose_shift)
+        if is_false_start != True:
+            user_score = user.set_user_score(time_spend, speed_average, count_lose_shift)
 
         font_small = WindowPattern().get_font("small")
         text_color_simple = WindowPattern().get_text_colors("simple")
         text_color_success = WindowPattern().get_text_colors("success")
+        text_color_unsuccess = WindowPattern().get_text_colors("unsuccess")
 
         screen_color = WindowPattern().get_screen_color()
 
@@ -309,9 +442,20 @@ class Background(pygame.sprite.Sprite):
         text_time_spend = font_small.render(f"Время заезда {round(time_spend, 2)} секунд", True, text_color_simple)
         text_speed_average = font_small.render(f"Средняя скорость {round(speed_average, 2)} км/ч", True,
                                                text_color_simple)
-        text_user_score = font_small.render(f"Заработано {user_score} очков", True, text_color_simple)
+        if is_false_start == True:
+            text_user_score = font_small.render(f"Заработано 0 очков. (!Фальстарт!)", True, text_color_unsuccess)
+        else:
+            text_user_score = font_small.render(f"Заработано {user_score} очков", True, text_color_simple)
+
+        text_last_best_statistics = font_small.render('Последние результаты на машине:', True, text_color_simple)
+        text_last_best_statistics_time = font_small.render(f'Время: {user.data[car.title].get('best_time')}', True, text_color_simple)
+
+        if is_false_start != True:
+            user.set_statistic_races(car_name=car.title, spend_time=round(time_spend, 2))
 
         screen.blit(text_finish, ((width / 4) + 85, (height / 4) + 20))
         screen.blit(text_time_spend, ((width / 4) + 35, (height / 4) + 70))
         screen.blit(text_speed_average, ((width / 4) + 35, (height / 4) + 130))
         screen.blit(text_user_score, ((width / 4) + 35, (height / 4) + 180))
+        screen.blit(text_last_best_statistics, ((width / 4) + 35, (height / 4) + 230))
+        screen.blit(text_last_best_statistics_time, ((width / 4) + 35, (height / 4) + 260))

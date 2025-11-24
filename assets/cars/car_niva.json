@@ -1,7 +1,8 @@
 {
   "image": "car_niva.png",
-  "name": "РОЗОВАЯ НИВА (by Настя и Ринат)",
+  "name": "РОЗОВАЯ НИВА",
   "class": "super_sport",
+  "animation": false,
   "score_to_unlocking": 20000,
   "scale": 0.5,
   "coordinate_x": -50,

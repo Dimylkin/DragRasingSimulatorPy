@@ -2,6 +2,7 @@
   "image": "car_vaz_2101.png",
   "name": "ВАЗ 2101",
   "class": "low",
+  "animation": false,
   "score_to_unlocking": 0,
   "scale": 0.5,
   "coordinate_x": -50,

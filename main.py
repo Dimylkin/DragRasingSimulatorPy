@@ -16,7 +16,7 @@ def main():
     Обрабатывает исключения для корректного завершения при ошибках.
     """
     try:
-        user = User("ivan")
+        user = User("admin")
         start = WindowStart(user)
         start.run()
     except Exception as e:

@@ -1,7 +1,8 @@
 {
-  "image": "car_audi_rs6.png",
+  "image": "car_audi_rs6_state0.png",
   "name": "Audi RS6",
   "class": "sport",
+  "animation": true,
   "score_to_unlocking": 1000,
   "scale": 1,
   "coordinate_x": -50,

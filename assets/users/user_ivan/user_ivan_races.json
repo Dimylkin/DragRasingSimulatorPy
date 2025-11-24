@@ -1,0 +1,14 @@
+{
+  "audi_rs6": {
+    "best_time": 11.52
+  },
+  "lamborghini_murcielago": {
+    "best_time": 10.03
+  },
+  "niva": {
+    "best_time": 17.98
+  },
+  "vaz_2101": {
+    "best_time": 15.67
+  }
+}

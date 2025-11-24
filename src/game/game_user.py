@@ -53,7 +53,7 @@ class User:
             KeyError: Если в JSON отсутствуют необходимые ключи.
         """
         try:
-            with open(Utils().get_asset_path('users', f'user_{name}.json'), 'r', encoding='utf-8') as asset_user:
+            with open(Utils().get_asset_path('users', f'user_{name}', f'user_{name}_statistics.json'), 'r', encoding='utf-8') as asset_user:
                 data = json.load(asset_user)
                 self.nickname = data['name']
                 self.image = data['image']
@@ -67,6 +67,14 @@ class User:
         except KeyError as e:
             print(f"Ошибка: отсутствует ключ {e} в данных пользователя '{name}'.")
             raise ValueError(f"Неполные данные пользователя '{name}': отсутствует ключ {e}.")
+
+        try:
+            with open(Utils().get_asset_path('users', f'user_{self.name}', f'user_{self.name}_races.json'), 'r',
+                      encoding='utf-8') as asset_user:
+                self.data = json.load(asset_user)
+        except FileNotFoundError:
+            print(f"Ошибка: файл статистики f'user_{self.name}_races.json' не найден.")
+            raise ValueError(f"Файл статистики f'user_{self.name}_races.json' не существует.")
 
     def set_user_score(self, time_spend, speed_average, lose_shift_count):
         """
@@ -113,7 +121,7 @@ class User:
 
         self.score += score
 
-        file_path = Utils().get_asset_path('users', f'user_{self.name}.json')
+        file_path = Utils().get_asset_path('users', f'user_{self.name}', f'user_{self.name}_statistics.json')
 
         try:
             with open(file_path, 'r', encoding='utf-8') as file:
@@ -135,4 +143,49 @@ class User:
             raise
 
         return score
+
+    def set_statistic_races(self, car_name, spend_time):
+        """
+        Обновляет статистику лучших результатов пользователя по конкретной машине.
+
+        Если время или средняя скорость лучше ранее сохраненных — обновляет значения,
+        после чего сохраняет статистику в JSON-файл.
+
+        Args:
+            car_name (str): Имя машины.
+            spend_time (float): Время заезда.
+            avg_speed (float): Средняя скорость заезда.
+        """
+        # Загружаем текущие результаты из user_{name}_races.json
+        file_path = Utils().get_asset_path('users', f'user_{self.name}', f'user_{self.name}_races.json')
+
+        try:
+            with open(file_path, 'r', encoding='utf-8') as file:
+                data = json.load(file)
+        except FileNotFoundError:
+            data = {}
+        except json.JSONDecodeError:
+            data = {}
+
+        # Инициализируем структуру для best_results, если нет
+
+        # Получаем текущие лучшие значения или None
+        current_best = data.get(car_name, {"best_time": None})
+
+        # Обновляем лучшее время, если новое меньше или None
+        best_time = current_best.get('best_time')
+        if best_time is None or spend_time < best_time:
+            current_best['best_time'] = spend_time
+
+        # Записываем обратно по машине
+        data[car_name] = current_best
+
+        # Сохраняем обновленные данные
+        try:
+            with open(file_path, 'w', encoding='utf-8') as file:
+                json.dump(data, file, indent=2, ensure_ascii=False)
+        except IOError as e:
+            print(f"Ошибка записи статистики в файл пользователя '{self.name}': {e}")
+            raise
+
 

@@ -52,7 +52,7 @@ class Car(pygame.sprite.Sprite):
             self.max_revolutions
         )
         self.max_speed = self.get_max_speed()
-        self._load_image()
+        self._load_image(0)
         self.speed = 0
 
         self.boost_frames_remaining = 0
@@ -73,6 +73,7 @@ class Car(pygame.sprite.Sprite):
                 self.first_image = data['image']
                 self.title = data['name']
                 self.car_class = data['class']
+                self.animation = data["animation"]
                 self.score_to_unlocking = data['score_to_unlocking']
                 self.horse_power = data['horse_power']
                 self.scale = data['scale']
@@ -89,7 +90,7 @@ class Car(pygame.sprite.Sprite):
             raise ValueError(f"Характеристики машины '{self.name}' не были загружены. "
                              f"Ошибка: {e}")
 
-    def _load_image(self):
+    def _load_image(self, state):
         """
         Загружает и масштабирует изображение автомобиля.
 
@@ -101,7 +102,7 @@ class Car(pygame.sprite.Sprite):
         """
         try:
             self.original_image = pygame.image.load(
-                Utils().get_resource_path('images', 'cars', self.first_image)
+                Utils().get_resource_path('images', 'cars',f'car_{self.name}', f'car_{self.name}_state{state}.png')
             ).convert_alpha()
             if self.scale != 1.0:
                 new_size = (

@@ -104,7 +104,7 @@ class RaceSettings:
 
         try:
             self.image_car = pygame.image.load(
-                Utils().get_resource_path('images', 'cars', self.car_current.first_image)).convert_alpha()
+                Utils().get_resource_path('images', 'cars',f'car_{self.car_current.name}', f'car_{self.car_current.name}_state{0}.png')).convert_alpha()
         except (FileNotFoundError, pygame.error) as e:
             print(f"Ошибка загрузки изображения автомобиля: {e}")
             self.image_car = pygame.Surface((200, 100))
@@ -237,7 +237,7 @@ class RaceSettings:
 
         try:
             new_image = pygame.image.load(
-                Utils().get_resource_path('images', 'cars', self.car_current.first_image)).convert_alpha()
+                Utils().get_resource_path('images', 'cars',f'car_{self.car_current.name}', f'car_{self.car_current.name}_state{0}.png')).convert_alpha()
             self.button_car.set_image(new_image)
         except (FileNotFoundError, pygame.error) as e:
             print(f"Ошибка загрузки изображения автомобиля {self.car_current.title}: {e}")

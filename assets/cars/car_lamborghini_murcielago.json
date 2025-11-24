@@ -2,6 +2,7 @@
   "image": "car_lamborghini_murcielago.png",
   "name": "Lamborghini Murcielago",
   "class": "super_sport",
+  "animation": false,
   "score_to_unlocking": 5000,
   "scale": 0.30,
   "coordinate_x": -50,
