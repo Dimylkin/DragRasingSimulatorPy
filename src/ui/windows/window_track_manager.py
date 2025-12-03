@@ -400,7 +400,7 @@ class Background(pygame.sprite.Sprite):
         font_large = WindowPattern().get_font("large")
         text_color_error = WindowPattern().get_text_colors("unsuccess")
 
-        text = font_large.render("ФАЛЬШСТАРТ", True, text_color_error)
+        text = font_large.render("!ФАЛЬСТАРТ!", True, text_color_error)
         rect = text.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2))
         screen.blit(text, rect)
 

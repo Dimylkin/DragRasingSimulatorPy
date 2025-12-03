@@ -73,6 +73,7 @@ class RaceManager:
         self.frames_after_shift = 0
         self.frames_boost = 0
         self.frames_start = 0
+        self.frames_bad_shift_penalty = 0
 
         self.frames_traffic_total = random.randint(300, 480)
         self.frames_traffic = self.frames_traffic_total
@@ -167,6 +168,7 @@ class RaceManager:
                 if not self._is_good_shift:
                     self.count_lose_shift += 1
                     self.frames_warning = 60
+                    self.frames_bad_shift_penalty = 60
 
     def _update_game_state(self):
         """
@@ -199,7 +201,8 @@ class RaceManager:
         if self._is_finished:
             return
 
-        self._car.update(self._is_good_shift)
+        is_good_for_update = self.frames_bad_shift_penalty <= 0
+        self._car.update(is_good_for_update)
 
         self.frames_boost = self._car.boost_frames_remaining
         self.speeds.append(self._car.engine.get_current_speed())
@@ -215,6 +218,11 @@ class RaceManager:
 
         if self.frames_start > 0:
             self.frames_start -= 1
+
+        if self.frames_bad_shift_penalty > 0:
+            self.frames_bad_shift_penalty -= 1
+            if self.frames_bad_shift_penalty == 0:
+                self._is_good_shift = True
 
         self._is_finished = self._road.update(self._car.speed)
 
